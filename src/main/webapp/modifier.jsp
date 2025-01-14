@@ -1,6 +1,7 @@
 <!-- modifier.jsp -->
 <%@ page import="com.example.jeewebproject.Appreciation" %>
 <%@ page import="com.example.jeewebproject.AppreciationDAO" %>
+<%@ page import="jakarta.servlet.http.HttpSession" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html lang="fr">
@@ -12,6 +13,17 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
+
+<%
+    // Check if the user is authenticated
+    HttpSession Usersession = request.getSession(false);
+    String username = (Usersession != null) ? (String) Usersession.getAttribute("username") : null;
+    if (username == null) {
+        // Redirect to login page if not authenticated
+        response.sendRedirect("login.jsp");
+        return;
+    }
+%>
 
 <header class="bg-teal-600 text-white shadow-lg">
     <div class="max-w-7xl mx-auto px-4 py-6">
@@ -28,10 +40,12 @@
     <%
         String idString = request.getParameter("id");
         if (idString != null) {
-            int id = Integer.parseInt(idString);
-            AppreciationDAO dao = new AppreciationDAO();
-            Appreciation appreciation = dao.getAppreciationById(id);
-            if (appreciation != null) {
+            try {
+                int id = Integer.parseInt(idString);
+                AppreciationDAO dao = new AppreciationDAO();
+                Appreciation appreciation = dao.getAppreciationById(id);
+
+                if (appreciation != null) {
     %>
     <div class="bg-white rounded-lg shadow-xl border-l-4 border-teal-500 p-8">
         <form action="appreciations" method="post" class="space-y-6">
@@ -81,10 +95,17 @@
     </div>
     <%
         }
-    } else {
+    } catch (NumberFormatException e) {
     %>
     <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
         ID non valide.
+    </div>
+    <%
+        }
+    } else {
+    %>
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+        Aucun ID fourni.
     </div>
     <%
         }

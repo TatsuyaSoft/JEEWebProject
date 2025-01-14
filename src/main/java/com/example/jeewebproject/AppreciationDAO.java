@@ -13,11 +13,12 @@ public class AppreciationDAO {
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 
+    // Save appreciation with user_id
     public void saveAppreciation(Appreciation appreciation) {
-        String sql = "INSERT INTO appreciations (nom, prenom, appreciation, date) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO appreciations (nom, prenom, appreciation, date, user_id) VALUES (?, ?, ?, ?, ?)";
 
-        // Définir la date actuelle
-        appreciation.setCurrentDate(); // Définir la date avant l'insertion
+        // Define the current date
+        appreciation.setCurrentDate();
 
         try (Connection connection = getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -25,7 +26,8 @@ public class AppreciationDAO {
             statement.setString(1, appreciation.getNom());
             statement.setString(2, appreciation.getPrenom());
             statement.setString(3, appreciation.getAppreciation());
-            statement.setTimestamp(4, new Timestamp(appreciation.getDate().getTime())); // Convertir la date en Timestamp
+            statement.setTimestamp(4, new Timestamp(appreciation.getDate().getTime())); // Convert date to Timestamp
+            statement.setInt(5, appreciation.getUserId()); // Set user ID
 
             statement.executeUpdate();
         } catch (SQLException e) {
@@ -34,19 +36,25 @@ public class AppreciationDAO {
         }
     }
 
-    public List<Appreciation> getAllAppreciations() {
+    // Get all appreciations for a specific user
+    public List<Appreciation> getAppreciationsByUserId(int userId) {
         List<Appreciation> appreciations = new ArrayList<>();
-        String sql = "SELECT * FROM appreciations";
+        String sql = "SELECT * FROM appreciations WHERE user_id = ?";
+
         try (Connection connection = getConnection();
-             Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, userId);
+            ResultSet rs = statement.executeQuery();
+
             while (rs.next()) {
                 Appreciation appreciation = new Appreciation();
                 appreciation.setId(rs.getInt("id"));
                 appreciation.setNom(rs.getString("nom"));
                 appreciation.setPrenom(rs.getString("prenom"));
                 appreciation.setAppreciation(rs.getString("appreciation"));
-                appreciation.setDate(rs.getTimestamp("date")); // Récupérer la date de la base de données
+                appreciation.setDate(rs.getTimestamp("date"));
+                appreciation.setUserId(rs.getInt("user_id"));
                 appreciations.add(appreciation);
             }
         } catch (SQLException e) {
@@ -54,6 +62,8 @@ public class AppreciationDAO {
         }
         return appreciations;
     }
+
+    // Get appreciation by ID
     public Appreciation getAppreciationById(int id) {
         Appreciation appreciation = null;
         String sql = "SELECT * FROM appreciations WHERE id = ?";
@@ -70,7 +80,8 @@ public class AppreciationDAO {
                 appreciation.setNom(resultSet.getString("nom"));
                 appreciation.setPrenom(resultSet.getString("prenom"));
                 appreciation.setAppreciation(resultSet.getString("appreciation"));
-                appreciation.setDate(resultSet.getTimestamp("date")); // Ajustez selon la façon dont la date est stockée
+                appreciation.setDate(resultSet.getTimestamp("date"));
+                appreciation.setUserId(resultSet.getInt("user_id")); // Get user ID
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -79,21 +90,26 @@ public class AppreciationDAO {
 
         return appreciation;
     }
-    public void deleteAppreciation(int id) {
-        String sql = "DELETE FROM appreciations WHERE id = ?";
+
+    // Delete appreciation only if it belongs to the user
+    public void deleteAppreciation(int id, int userId) {
+        String sql = "DELETE FROM appreciations WHERE id = ? AND user_id = ?";
 
         try (Connection connection = getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setInt(1, id);
+            statement.setInt(2, userId); // Ensure the user owns the appreciation
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
             throw new RuntimeException("Erreur lors de la suppression de l'appréciation.", e);
         }
     }
+
+    // Update appreciation only if it belongs to the user
     public void updateAppreciation(Appreciation appreciation) {
-        String sql = "UPDATE appreciations SET nom = ?, prenom = ?, appreciation = ?, date = ? WHERE id = ?";
+        String sql = "UPDATE appreciations SET nom = ?, prenom = ?, appreciation = ?, date = ? WHERE id = ? AND user_id = ?";
 
         try (Connection connection = getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -101,8 +117,9 @@ public class AppreciationDAO {
             statement.setString(1, appreciation.getNom());
             statement.setString(2, appreciation.getPrenom());
             statement.setString(3, appreciation.getAppreciation());
-            statement.setTimestamp(4, new Timestamp(appreciation.getDate().getTime())); // Convertir la date en Timestamp
-            statement.setInt(5, appreciation.getId()); // Définir l'ID de l'appréciation à mettre à jour
+            statement.setTimestamp(4, new Timestamp(appreciation.getDate().getTime()));
+            statement.setInt(5, appreciation.getId());
+            statement.setInt(6, appreciation.getUserId()); // Ensure the user owns the appreciation
 
             statement.executeUpdate();
         } catch (SQLException e) {
@@ -110,6 +127,4 @@ public class AppreciationDAO {
             throw new RuntimeException("Erreur lors de la mise à jour de l'appréciation.", e);
         }
     }
-
-
 }

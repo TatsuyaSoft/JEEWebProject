@@ -1,4 +1,3 @@
-<!-- appreciations.jsp -->
 <%@ page import="java.util.List" %>
 <%@ page import="com.example.jeewebproject.Appreciation" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
@@ -29,6 +28,9 @@
         <!-- Appreciation Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             <%
+                // Get the logged-in user's ID from the session
+                Integer currentUserId = (Integer) session.getAttribute("userId");
+
                 List<Appreciation> appreciations = (List<Appreciation>) request.getAttribute("appreciations");
                 if (appreciations != null && !appreciations.isEmpty()) {
                     for (Appreciation appreciation : appreciations) {
@@ -43,6 +45,10 @@
                             <i class="far fa-calendar-alt mr-1"></i><%= appreciation.getDate() %>
                         </p>
                     </div>
+                    <%
+                        // Show edit and delete options only if the appreciation belongs to the logged-in user
+                        if (currentUserId != null && currentUserId.equals(appreciation.getUserId())) {
+                    %>
                     <div class="flex items-center space-x-2">
                         <a href="modifier.jsp?id=<%= appreciation.getId() %>" class="text-teal-600 hover:text-teal-800">
                             <i class="fas fa-edit"></i>
@@ -51,6 +57,7 @@
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
+                    <% } %>
                 </div>
                 <p class="mt-4 text-gray-700">
                     <%= appreciation.getAppreciation() %>
@@ -75,7 +82,7 @@
 <script>
     function confirmerSuppression(id) {
         if (confirm('Êtes-vous sûr de vouloir supprimer cette appréciation ?')) {
-            window.location.href = 'appreciations?id=' + id;
+            window.location.href = 'appreciations?id=' + id + '&action=delete';
         }
     }
 </script>

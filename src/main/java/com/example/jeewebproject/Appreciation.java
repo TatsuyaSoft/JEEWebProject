@@ -8,6 +8,7 @@ public class Appreciation {
     private String prenom;
     private String appreciation;
     private Date date; // Nouveau champ pour la date
+    private int userId; // Nouveau champ pour l'ID de l'utilisateur
 
     public int getId() {
         return id;
@@ -45,13 +46,21 @@ public class Appreciation {
         return date;
     }
 
-    // Le setter pour la date n'est pas nécessaire car la date sera définie automatiquement
     public void setDate(Date date) {
         this.date = date;
     }
 
-    // Méthode pour récupérer la date au format Date si nécessaire
     public void setCurrentDate() {
         this.date = new Date(); // Initialiser la date à la date courante
+    }
+
+    // Getter pour userId
+    public int getUserId() {
+        return userId;
+    }
+
+    // Setter pour userId
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 }

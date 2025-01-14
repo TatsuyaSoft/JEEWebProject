@@ -1,5 +1,6 @@
 <!-- index.jsp -->
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="jakarta.servlet.http.HttpSession" %>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -10,6 +11,17 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
+
+<%
+  // Check if the user is authenticated
+  HttpSession userSession = request.getSession(false); // Renamed to userSession to avoid conflict
+  String username = (userSession != null) ? (String) userSession.getAttribute("username") : null;
+  if (username == null) {
+    // Redirect to login page if not authenticated
+    response.sendRedirect("login.jsp");
+    return;
+  }
+%>
 
 <header class="bg-teal-600 text-white shadow-lg">
   <div class="max-w-7xl mx-auto px-4 py-6 flex items-center">
