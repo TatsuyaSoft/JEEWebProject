@@ -9,7 +9,7 @@ public class AppreciationDAO {
     private static final String USER = "root";
     private static final String PASSWORD = "";
 
-    public Connection getConnection() throws SQLException {
+    public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 
@@ -37,14 +37,14 @@ public class AppreciationDAO {
     }
 
     // Get all appreciations for a specific user
-    public List<Appreciation> getAppreciationsByUserId(int userId) {
+    public static List<Appreciation> getAppreciationsByUserId() {
         List<Appreciation> appreciations = new ArrayList<>();
-        String sql = "SELECT * FROM appreciations WHERE user_id = ?";
+        String sql = "SELECT * FROM appreciations";
 
         try (Connection connection = getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            statement.setInt(1, userId);
+
             ResultSet rs = statement.executeQuery();
 
             while (rs.next()) {
@@ -64,13 +64,12 @@ public class AppreciationDAO {
     }
 
     // Get appreciation by ID
-    public Appreciation getAppreciationById(int id) {
+    public static Appreciation getAppreciationById(int id) {
         Appreciation appreciation = null;
         String sql = "SELECT * FROM appreciations WHERE id = ?";
 
         try (Connection connection = getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
-
             statement.setInt(1, id);
             ResultSet resultSet = statement.executeQuery();
 

@@ -93,7 +93,7 @@ public class AppreciationController extends HttpServlet {
         }
 
         // Récupération des appréciations de l'utilisateur connecté
-        List<Appreciation> userAppreciations = dao.getAppreciationsByUserId(userId);
+        List<Appreciation> userAppreciations = dao.getAppreciationsByUserId();
 
         // Passer la liste d'appréciations à la vue JSP
         request.setAttribute("appreciations", userAppreciations);
